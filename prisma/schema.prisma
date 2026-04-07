@@ -4,24 +4,100 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+enum UserRole {
+  citizen
+  authority
+  admin
+  org
 }
 
-model Location {
-  id        Int      @id @default(autoincrement())
-  name      String
-  lat       Float
-  lng       Float
-  geo       Unsupported("geography(Point, 4326)")
-  createdAt DateTime @default(now())
+enum ReportStatus {
+  pending
+  assigned
+  resolved
+  escalated
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  passwordHash String         @map("password_hash")
+  role         UserRole
+  city         String
+  createdAt    DateTime       @default(now()) @map("created_at")
+  reports      Report[]
+  assignments  Assignment[]   @relation("AuthorityAssignments")
+  campaigns    Campaign[]
+  campaignJoins CampaignJoin[]
+
+  @@map("users")
+}
+
+model Report {
+  id                Int           @id @default(autoincrement())
+  userId            Int           @map("user_id")
+  imageUrl          String        @map("image_url")
+  location          Unsupported("geography(Point, 4326)")
+  addressText       String        @map("address_text")
+  garbageType       String        @map("garbage_type")
+  severity          String
+  status            ReportStatus  @default(pending)
+  aiConfidenceScore Float         @map("ai_confidence_score")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  resolvedAt        DateTime?     @map("resolved_at")
+  user              User          @relation(fields: [userId], references: [id])
+  assignments       Assignment[]
+
+  @@map("reports")
+}
+
+model Assignment {
+  id             Int       @id @default(autoincrement())
+  reportId       Int       @map("report_id")
+  authorityId    Int       @map("authority_id")
+  assignedAt     DateTime  @default(now()) @map("assigned_at")
+  resolvedAt     DateTime? @map("resolved_at")
+  beforeImageUrl String?   @map("before_image_url")
+  afterImageUrl  String?   @map("after_image_url")
+  report         Report    @relation(fields: [reportId], references: [id])
+  authority      User      @relation("AuthorityAssignments", fields: [authorityId], references: [id])
+
+  @@map("assignments")
+}
+
+model Campaign {
+  id               Int            @id @default(autoincrement())
+  createdBy        Int            @map("created_by")
+  title            String
+  description      String
+  city             String
+  date             DateTime
+  participantCount Int            @default(0) @map("participant_count")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  creator          User           @relation(fields: [createdBy], references: [id])
+  joins            CampaignJoin[]
+
+  @@map("campaigns")
+}
+
+model CampaignJoin {
+  id         Int      @id @default(autoincrement())
+  campaignId Int      @map("campaign_id")
+  userId     Int      @map("user_id")
+  joinedAt   DateTime @default(now()) @map("joined_at")
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([campaignId, userId])
+  @@map("campaign_joins")
 }
