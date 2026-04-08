@@ -16,6 +16,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get("/:id", { preHandler: fastify.authenticate }, getUserByIdHandler);
   fastify.get("/:id/insights", { preHandler: fastify.authenticate }, getUserRoleInsightsHandler);
   fastify.post("/", createUserHandler);
+  fastify.post("/login", createUserSessionHandler);
   fastify.post("/session", createUserSessionHandler);
   fastify.get("/session", { preHandler: fastify.authenticate }, getCurrentUserSessionHandler);
   fastify.put<{ Body: UpdateUserBody }>(

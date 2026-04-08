@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { FastifyPluginAsync } from "fastify";
+import fp from "fastify-plugin";
 import { Pool } from "pg";
 
 const prismaPlugin: FastifyPluginAsync = async (fastify) => {
@@ -22,4 +23,4 @@ const prismaPlugin: FastifyPluginAsync = async (fastify) => {
   });
 };
 
-export default prismaPlugin;
+export default fp(prismaPlugin);

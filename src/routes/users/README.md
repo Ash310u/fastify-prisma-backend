@@ -5,13 +5,14 @@
 - GET /api/users/:id
 - GET /api/users/:id/insights
 - POST /api/users
+- POST /api/users/login
 - POST /api/users/session
 - GET /api/users/session
 - PUT /api/users/:id
 - DELETE /api/users/:id
 
 ## Auth Notes
-- `POST /api/users` and `POST /api/users/session` are public routes.
+- `POST /api/users`, `POST /api/users/login`, and `POST /api/users/session` are public routes.
 - All other user routes require `Authorization: Bearer <token>`.
 
 ## Input Examples
@@ -79,6 +80,18 @@ Input
 ```
 
 ### POST /api/users/session
+Input
+- Params: none
+- Query: none
+- Body
+```json
+{
+  "email": "aarav@example.com",
+  "passwordHash": "hashed_password_value"
+}
+```
+
+### POST /api/users/login
 Input
 - Params: none
 - Query: none

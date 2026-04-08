@@ -335,6 +335,36 @@ test("POST /api/users/session returns JWT and user payload", async (t) => {
   assert.equal(body.user.role, UserRole.admin);
 });
 
+test("POST /api/users/login returns JWT and user payload", async (t) => {
+  const { app, prisma } = await buildTestApp();
+  t.after(() => app.close());
+
+  prisma.user.findUnique.mockResolvedValue({
+    id: 33,
+    name: "Login User",
+    email: "login@example.com",
+    passwordHash: "pw_hash",
+    role: UserRole.authority,
+    city: "Bhopal",
+    impactScore: 10,
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/users/login",
+    payload: {
+      email: "login@example.com",
+      passwordHash: "pw_hash",
+    },
+  });
+
+  assert.equal(response.statusCode, 200);
+  const body = response.json();
+  assert.equal(typeof body.token, "string");
+  assert.equal(body.user.id, 33);
+  assert.equal(body.user.role, UserRole.authority);
+});
+
 test("GET /api/users/session returns current user from token", async (t) => {
   const { app, prisma } = await buildTestApp();
   t.after(() => app.close());

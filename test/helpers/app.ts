@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import type { PrismaClient } from "../../generated/prisma/client";
 import { UserRole } from "../../generated/prisma/client";
 import authPlugin from "../../src/plugins/auth";
+import corsPlugin from "../../src/plugins/cors";
 import routes from "../../src/routes";
 
 type AsyncMock<TArgs extends unknown[] = unknown[], TResult = unknown> = ((
@@ -88,6 +89,7 @@ export async function buildTestApp() {
   const app = Fastify({ logger: false });
 
   app.decorate("prisma", prisma as unknown as PrismaClient);
+  await app.register(corsPlugin);
   await app.register(authPlugin);
   await app.register(routes);
   await app.ready();

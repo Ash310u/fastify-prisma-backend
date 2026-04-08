@@ -30,7 +30,6 @@ export async function createUserHandler(
   reply: FastifyReply,
 ) {
   const { name, email, passwordHash, role, city, impactScore } = request.body;
-
   try {
     const user = await request.server.prisma.user.create({
       data: {
