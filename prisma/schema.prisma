@@ -50,7 +50,8 @@ model Report {
   imageUrl          String        @map("image_url")
   location          Unsupported("geography(Point, 4326)")
   addressText       String        @map("address_text")
-  garbageType       String        @map("garbage_type")
+  description       String
+  category          String
   severity          String
   status            ReportStatus  @default(pending)
   aiConfidenceScore Float         @map("ai_confidence_score")

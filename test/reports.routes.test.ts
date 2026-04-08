@@ -12,7 +12,8 @@ test("GET /api/reports returns all reports", async (t) => {
       userId: 1,
       imageUrl: "https://example.com/report.jpg",
       addressText: "Near City Park",
-      garbageType: "plastic",
+      description: "Garbage pile near the footpath",
+      category: "plastic",
       severity: "high",
       status: "pending",
       aiConfidenceScore: 0.91,
@@ -41,7 +42,8 @@ test("GET /api/reports/:id returns one report", async (t) => {
     userId: 4,
     imageUrl: "https://example.com/report-2.jpg",
     addressText: "Market Road",
-    garbageType: "mixed",
+    description: "Overflowing bin near market gate",
+    category: "mixed",
     severity: "medium",
     status: "assigned",
     aiConfidenceScore: 0.87,
@@ -70,7 +72,8 @@ test("POST /api/reports creates a report", async (t) => {
     latitude: 23.2599,
     longitude: 77.4126,
     addressText: "Near City Park",
-    garbageType: "plastic",
+    description: "Garbage spread across the sidewalk",
+    category: "plastic",
     severity: "high",
     status: "pending",
     aiConfidenceScore: 0.91,
@@ -82,7 +85,8 @@ test("POST /api/reports creates a report", async (t) => {
     userId: 1,
     imageUrl: payload.imageUrl,
     addressText: payload.addressText,
-    garbageType: payload.garbageType,
+    description: payload.description,
+    category: payload.category,
     severity: payload.severity,
     status: payload.status,
     aiConfidenceScore: payload.aiConfidenceScore,
@@ -108,9 +112,9 @@ test("POST /api/reports creates a report", async (t) => {
   assert.equal(queryArgs[2], payload.imageUrl);
   assert.equal(queryArgs[3], payload.longitude);
   assert.equal(queryArgs[4], payload.latitude);
-  assert.equal(queryArgs[8], payload.status);
-  assert.equal(queryArgs[9], payload.aiConfidenceScore);
-  assert.ok(queryArgs[10] instanceof Date);
+  assert.equal(queryArgs[9], payload.status);
+  assert.equal(queryArgs[10], payload.aiConfidenceScore);
+  assert.ok(queryArgs[11] instanceof Date);
 });
 
 test("PUT /api/reports/:id updates a report", async (t) => {
@@ -129,7 +133,8 @@ test("PUT /api/reports/:id updates a report", async (t) => {
     userId: 2,
     imageUrl: "https://example.com/updated-report.jpg",
     addressText: "Station Road",
-    garbageType: "organic",
+    description: "Waste near bus station",
+    category: "organic",
     ...payload,
   };
 
@@ -148,10 +153,10 @@ test("PUT /api/reports/:id updates a report", async (t) => {
   assert.deepEqual(prisma.report.findUnique.calls[0]?.[0], { where: { id: 5 } });
 
   const queryArgs = prisma.$queryRaw.calls[0] ?? [];
-  assert.equal(queryArgs[12], true);
-  assert.equal(queryArgs[13], false);
-  assert.ok(queryArgs[14] instanceof Date);
-  assert.equal(queryArgs[15], 5);
+  assert.equal(queryArgs[13], true);
+  assert.equal(queryArgs[14], false);
+  assert.ok(queryArgs[15] instanceof Date);
+  assert.equal(queryArgs[16], 5);
 });
 
 test("DELETE /api/reports/:id removes a report", async (t) => {

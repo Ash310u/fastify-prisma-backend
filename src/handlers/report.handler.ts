@@ -8,7 +8,8 @@ export type CreateReportBody = {
   latitude: number;
   longitude: number;
   addressText: string;
-  garbageType: string;
+  description: string;
+  category: string;
   severity: string;
   status?: ReportStatus;
   aiConfidenceScore: number;
@@ -21,7 +22,8 @@ export type UpdateReportBody = {
   latitude?: number;
   longitude?: number;
   addressText?: string;
-  garbageType?: string;
+  description?: string;
+  category?: string;
   severity?: string;
   status?: ReportStatus;
   aiConfidenceScore?: number;
@@ -38,7 +40,8 @@ export async function createReportHandler(
     latitude,
     longitude,
     addressText,
-    garbageType,
+    description,
+    category,
     severity,
     status,
     aiConfidenceScore,
@@ -48,6 +51,12 @@ export async function createReportHandler(
   const statusValue = status ?? null;
   const resolvedAtValue = resolvedAt ? new Date(resolvedAt) : null;
 
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return reply.code(400).send({
+      message: "latitude and longitude are required numeric values",
+    });
+  }
+
   try {
     const inserted = await request.server.prisma.$queryRaw<{ id: number }[]>`
       INSERT INTO reports (
@@ -55,7 +64,8 @@ export async function createReportHandler(
         image_url,
         location,
         address_text,
-        garbage_type,
+        description,
+        category,
         severity,
         status,
         ai_confidence_score,
@@ -66,7 +76,8 @@ export async function createReportHandler(
         ${imageUrl},
         ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
         ${addressText},
-        ${garbageType},
+        ${description},
+        ${category},
         ${severity},
         COALESCE(${statusValue}::"ReportStatus", 'pending'::"ReportStatus"),
         ${aiConfidenceScore},
@@ -130,7 +141,8 @@ export async function updateReportHandler(
     latitude,
     longitude,
     addressText,
-    garbageType,
+    description,
+    category,
     severity,
     status,
     aiConfidenceScore,
@@ -142,13 +154,32 @@ export async function updateReportHandler(
   const latitudeValue = latitude ?? null;
   const longitudeValue = longitude ?? null;
   const addressTextValue = addressText ?? null;
-  const garbageTypeValue = garbageType ?? null;
+  const descriptionValue = description ?? null;
+  const categoryValue = category ?? null;
   const severityValue = severity ?? null;
   const statusValue = status ?? null;
   const aiConfidenceScoreValue = aiConfidenceScore ?? null;
   const resolvedAtDateValue = typeof resolvedAt === "string" ? new Date(resolvedAt) : null;
   const clearResolvedAt = resolvedAt === null;
   const hasResolvedAtUpdate = typeof resolvedAt === "string" || resolvedAt === null;
+
+  const hasLatitude = latitude !== undefined;
+  const hasLongitude = longitude !== undefined;
+
+  if (hasLatitude !== hasLongitude) {
+    return reply.code(400).send({
+      message: "latitude and longitude must be provided together",
+    });
+  }
+
+  if (
+    (hasLatitude && !Number.isFinite(latitudeValue)) ||
+    (hasLongitude && !Number.isFinite(longitudeValue))
+  ) {
+    return reply.code(400).send({
+      message: "latitude and longitude must be valid numeric values",
+    });
+  }
 
   try {
     const updated = await request.server.prisma.$queryRaw<{ id: number }[]>`
@@ -162,7 +193,8 @@ export async function updateReportHandler(
           ELSE location
         END,
         address_text = COALESCE(${addressTextValue}, address_text),
-        garbage_type = COALESCE(${garbageTypeValue}, garbage_type),
+        description = COALESCE(${descriptionValue}, description),
+        category = COALESCE(${categoryValue}, category),
         severity = COALESCE(${severityValue}, severity),
         status = COALESCE(${statusValue}::"ReportStatus", status),
         ai_confidence_score = COALESCE(${aiConfidenceScoreValue}, ai_confidence_score),
