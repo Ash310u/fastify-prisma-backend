@@ -8,6 +8,7 @@ type CreateUserBody = {
   passwordHash: string;
   role: UserRole;
   city: string;
+  impactScore?: number;
 };
 
 type UpdateUserBody = {
@@ -16,17 +17,25 @@ type UpdateUserBody = {
   passwordHash?: string;
   role?: UserRole;
   city?: string;
+  impactScore?: number;
 };
 
 export async function createUserHandler(
   request: FastifyRequest<{ Body: CreateUserBody }>,
   reply: FastifyReply,
 ) {
-  const { name, email, passwordHash, role, city } = request.body;
+  const { name, email, passwordHash, role, city, impactScore } = request.body;
 
   try {
     const user = await request.server.prisma.user.create({
-      data: { name, email, passwordHash, role, city },
+      data: {
+        name,
+        email,
+        passwordHash,
+        role,
+        city,
+        ...(impactScore !== undefined ? { impactScore } : {}),
+      },
     });
 
     return reply.code(201).send(user);

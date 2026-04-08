@@ -37,7 +37,8 @@ Input
   "email": "aarav@example.com",
   "passwordHash": "hashed_password_value",
   "role": "citizen",
-  "city": "Bhopal"
+  "city": "Bhopal",
+  "impactScore": 12.5
 }
 ```
 
@@ -54,7 +55,8 @@ Input
 ```json
 {
   "city": "Indore",
-  "role": "authority"
+  "role": "authority",
+  "impactScore": 18.25
 }
 ```
 

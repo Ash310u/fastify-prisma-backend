@@ -34,6 +34,7 @@ model User {
   passwordHash String         @map("password_hash")
   role         UserRole
   city         String
+  impactScore  Float          @default(0) @map("impact_score")
   createdAt    DateTime       @default(now()) @map("created_at")
   reports      Report[]
   assignments  Assignment[]   @relation("AuthorityAssignments")
