@@ -7,6 +7,9 @@
 - PUT /api/reports/:id
 - DELETE /api/reports/:id
 
+## Auth Notes
+- All report routes require `Authorization: Bearer <token>`.
+
 ## Input Examples
 
 ### GET /api/reports
@@ -14,6 +17,12 @@ Input
 - Params: none
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/reports/:id
 Input
@@ -25,11 +34,23 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### POST /api/reports
 Input
 - Params: none
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -55,6 +76,12 @@ Input
 }
 ```
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -74,3 +101,9 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```

@@ -16,6 +16,9 @@
 - PUT /api/campaign-joins/:id
 - DELETE /api/campaign-joins/:id
 
+## Auth Notes
+- All campaign and campaign-join routes require `Authorization: Bearer <token>`.
+
 ## Input Examples
 
 ### GET /api/campaigns
@@ -23,6 +26,12 @@ Input
 - Params: none
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/campaigns/:id
 Input
@@ -34,11 +43,23 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### POST /api/campaigns
 Input
 - Params: none
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -60,6 +81,12 @@ Input
 }
 ```
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -78,12 +105,24 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/campaign-joins
 Input
 - Params: none
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/campaign-joins/:id
 Input
@@ -95,11 +134,23 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### POST /api/campaign-joins
 Input
 - Params: none
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -117,6 +168,12 @@ Input
 }
 ```
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -135,3 +192,9 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```

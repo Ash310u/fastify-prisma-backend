@@ -7,6 +7,9 @@
 - PUT /api/assignments/:id
 - DELETE /api/assignments/:id
 
+## Auth Notes
+- All assignment routes require `Authorization: Bearer <token>`.
+
 ## Input Examples
 
 ### GET /api/assignments
@@ -14,6 +17,12 @@ Input
 - Params: none
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/assignments/:id
 Input
@@ -25,11 +34,23 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### POST /api/assignments
 Input
 - Params: none
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -50,6 +71,12 @@ Input
 }
 ```
 - Query: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 - Body
 ```json
 {
@@ -68,3 +95,9 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```

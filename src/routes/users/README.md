@@ -5,8 +5,14 @@
 - GET /api/users/:id
 - GET /api/users/:id/insights
 - POST /api/users
+- POST /api/users/session
+- GET /api/users/session
 - PUT /api/users/:id
 - DELETE /api/users/:id
+
+## Auth Notes
+- `POST /api/users` and `POST /api/users/session` are public routes.
+- All other user routes require `Authorization: Bearer <token>`.
 
 ## Input Examples
 
@@ -15,6 +21,12 @@ Input
 - Params: none
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/users/:id
 Input
@@ -26,6 +38,12 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### GET /api/users/:id/insights
 Input
@@ -37,6 +55,12 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### POST /api/users
 Input
@@ -51,6 +75,30 @@ Input
   "role": "citizen",
   "city": "Bhopal",
   "impactScore": 12.5
+}
+```
+
+### POST /api/users/session
+Input
+- Params: none
+- Query: none
+- Body
+```json
+{
+  "email": "aarav@example.com",
+  "passwordHash": "hashed_password_value"
+}
+```
+
+### GET /api/users/session
+Input
+- Params: none
+- Query: none
+- Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
 }
 ```
 
@@ -71,6 +119,12 @@ Input
   "impactScore": 18.25
 }
 ```
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
 
 ### DELETE /api/users/:id
 Input
@@ -82,3 +136,9 @@ Input
 ```
 - Query: none
 - Body: none
+- Headers
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
