@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildTestApp } from "./helpers/app";
+import { buildTestApp, createAuthHeaders } from "./helpers/app";
 
 test("GET /api/reports returns all reports", async (t) => {
   const { app, prisma } = await buildTestApp();
@@ -24,6 +24,7 @@ test("GET /api/reports returns all reports", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/reports",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -51,6 +52,7 @@ test("GET /api/reports/:id returns one report", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/reports/2",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -93,6 +95,7 @@ test("POST /api/reports creates a report", async (t) => {
   const response = await app.inject({
     method: "POST",
     url: "/api/reports",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -136,6 +139,7 @@ test("PUT /api/reports/:id updates a report", async (t) => {
   const response = await app.inject({
     method: "PUT",
     url: "/api/reports/5",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -157,6 +161,7 @@ test("DELETE /api/reports/:id removes a report", async (t) => {
   const response = await app.inject({
     method: "DELETE",
     url: "/api/reports/8",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 204);

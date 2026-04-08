@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildTestApp } from "./helpers/app";
+import { buildTestApp, createAuthHeaders } from "./helpers/app";
 
 test("GET /api/campaign-joins returns all campaign joins", async (t) => {
   const { app, prisma } = await buildTestApp();
@@ -19,6 +19,7 @@ test("GET /api/campaign-joins returns all campaign joins", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/campaign-joins",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -41,6 +42,7 @@ test("GET /api/campaign-joins/:id returns one campaign join", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/campaign-joins/2",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -63,6 +65,7 @@ test("POST /api/campaign-joins creates a campaign join", async (t) => {
   const response = await app.inject({
     method: "POST",
     url: "/api/campaign-joins",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -86,6 +89,7 @@ test("PUT /api/campaign-joins/:id updates a campaign join", async (t) => {
   const response = await app.inject({
     method: "PUT",
     url: "/api/campaign-joins/9",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -104,6 +108,7 @@ test("DELETE /api/campaign-joins/:id removes a campaign join", async (t) => {
   const response = await app.inject({
     method: "DELETE",
     url: "/api/campaign-joins/12",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 204);

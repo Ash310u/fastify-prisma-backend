@@ -1,5 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 import {
+  type CreateCampaignBody,
+  type UpdateCampaignBody,
   createCampaignHandler,
   deleteCampaignHandler,
   getCampaignByIdHandler,
@@ -8,11 +10,19 @@ import {
 } from "../../handlers/campaign.handler";
 
 const campaignRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get("/", listCampaignsHandler);
-  fastify.get("/:id", getCampaignByIdHandler);
-  fastify.post("/", createCampaignHandler);
-  fastify.put("/:id", updateCampaignHandler);
-  fastify.delete("/:id", deleteCampaignHandler);
+  fastify.get("/", { preHandler: fastify.authenticate }, listCampaignsHandler);
+  fastify.get("/:id", { preHandler: fastify.authenticate }, getCampaignByIdHandler);
+  fastify.post<{ Body: CreateCampaignBody }>(
+    "/",
+    { preHandler: fastify.authenticate },
+    createCampaignHandler,
+  );
+  fastify.put<{ Body: UpdateCampaignBody }>(
+    "/:id",
+    { preHandler: fastify.authenticate },
+    updateCampaignHandler,
+  );
+  fastify.delete("/:id", { preHandler: fastify.authenticate }, deleteCampaignHandler);
 };
 
 export default campaignRoutes;

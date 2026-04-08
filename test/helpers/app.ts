@@ -1,5 +1,7 @@
 import Fastify from "fastify";
 import type { PrismaClient } from "../../generated/prisma/client";
+import { UserRole } from "../../generated/prisma/client";
+import authPlugin from "../../src/plugins/auth";
 import routes from "../../src/routes";
 
 type AsyncMock<TArgs extends unknown[] = unknown[], TResult = unknown> = ((
@@ -86,8 +88,28 @@ export async function buildTestApp() {
   const app = Fastify({ logger: false });
 
   app.decorate("prisma", prisma as unknown as PrismaClient);
+  await app.register(authPlugin);
   await app.register(routes);
   await app.ready();
 
   return { app, prisma };
+}
+
+export function createAuthHeaders(
+  app: Awaited<ReturnType<typeof buildTestApp>>["app"],
+  payload?: {
+    userId?: number;
+    role?: UserRole;
+    email?: string;
+  },
+) {
+  const token = app.jwt.sign({
+    userId: payload?.userId ?? 1,
+    role: payload?.role ?? UserRole.admin,
+    email: payload?.email ?? "admin@example.com",
+  });
+
+  return {
+    authorization: `Bearer ${token}`,
+  };
 }

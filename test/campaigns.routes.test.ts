@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildTestApp } from "./helpers/app";
+import { buildTestApp, createAuthHeaders } from "./helpers/app";
 
 test("GET /api/campaigns returns all campaigns", async (t) => {
   const { app, prisma } = await buildTestApp();
@@ -23,6 +23,7 @@ test("GET /api/campaigns returns all campaigns", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/campaigns",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -49,6 +50,7 @@ test("GET /api/campaigns/:id returns one campaign", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/campaigns/2",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -75,6 +77,7 @@ test("POST /api/campaigns creates a campaign", async (t) => {
   const response = await app.inject({
     method: "POST",
     url: "/api/campaigns",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -112,6 +115,7 @@ test("PUT /api/campaigns/:id updates a campaign", async (t) => {
   const response = await app.inject({
     method: "PUT",
     url: "/api/campaigns/7",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -133,6 +137,7 @@ test("DELETE /api/campaigns/:id removes a campaign", async (t) => {
   const response = await app.inject({
     method: "DELETE",
     url: "/api/campaigns/6",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 204);

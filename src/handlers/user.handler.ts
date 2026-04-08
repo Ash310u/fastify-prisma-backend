@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { ReportStatus, UserRole } from "../../generated/prisma/client";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
 
-type CreateUserBody = {
+export type CreateUserBody = {
   name: string;
   email: string;
   passwordHash: string;
@@ -11,13 +11,18 @@ type CreateUserBody = {
   impactScore?: number;
 };
 
-type UpdateUserBody = {
+export type UpdateUserBody = {
   name?: string;
   email?: string;
   passwordHash?: string;
   role?: UserRole;
   city?: string;
   impactScore?: number;
+};
+
+export type CreateSessionBody = {
+  email: string;
+  passwordHash: string;
 };
 
 export async function createUserHandler(
@@ -102,6 +107,67 @@ export async function deleteUserHandler(request: FastifyRequest, reply: FastifyR
   } catch (error) {
     return handlePrismaCrudError(error, reply);
   }
+}
+
+export async function createUserSessionHandler(
+  request: FastifyRequest<{ Body: CreateSessionBody }>,
+  reply: FastifyReply,
+) {
+  const { email, passwordHash } = request.body;
+
+  const user = await request.server.prisma.user.findUnique({ where: { email } });
+
+  if (!user || user.passwordHash !== passwordHash) {
+    return reply.code(401).send({ message: "Invalid credentials" });
+  }
+
+  const token = request.server.jwt.sign(
+    {
+      userId: user.id,
+      role: user.role,
+      email: user.email,
+    },
+    { expiresIn: "7d" },
+  );
+
+  return reply.send({
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      city: user.city,
+      impactScore: user.impactScore,
+    },
+  });
+}
+
+export async function getCurrentUserSessionHandler(request: FastifyRequest, reply: FastifyReply) {
+  const authUser = request.authUser;
+
+  if (!authUser) {
+    return reply.code(401).send({ message: "Unauthorized" });
+  }
+
+  const user = await request.server.prisma.user.findUnique({
+    where: { id: authUser.userId },
+  });
+
+  if (!user) {
+    return reply.code(404).send({ message: "User not found" });
+  }
+
+  return reply.send({
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      city: user.city,
+      impactScore: user.impactScore,
+    },
+  });
 }
 
 function getStartOfToday(): Date {

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { ReportStatus } from "../../generated/prisma/client";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
 
-type CreateReportBody = {
+export type CreateReportBody = {
   userId: number;
   imageUrl: string;
   latitude: number;
@@ -15,7 +15,7 @@ type CreateReportBody = {
   resolvedAt?: string;
 };
 
-type UpdateReportBody = {
+export type UpdateReportBody = {
   userId?: number;
   imageUrl?: string;
   latitude?: number;

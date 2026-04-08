@@ -25,12 +25,14 @@
   },
   "homepage": "https://github.com/Ash310u/fastify-prisma-backend#readme",
   "dependencies": {
+    "@fastify/jwt": "^9.1.0",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.6.0",
+    "dotenv": "^17.2.3",
     "fastify": "^5.8.4",
+    "fastify-plugin": "^5.1.0",
     "pg": "^8.20.0",
-    "prisma": "^7.6.0",
-    "dotenv": "^17.2.3"
+    "prisma": "^7.6.0"
   },
   "devDependencies": {
     "@types/node": "^25.5.2",

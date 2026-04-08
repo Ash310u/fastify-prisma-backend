@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
 
-type CreateAssignmentBody = {
+export type CreateAssignmentBody = {
   reportId: number;
   authorityId: number;
   resolvedAt?: string;
@@ -9,7 +9,7 @@ type CreateAssignmentBody = {
   afterImageUrl?: string;
 };
 
-type UpdateAssignmentBody = {
+export type UpdateAssignmentBody = {
   reportId?: number;
   authorityId?: number;
   resolvedAt?: string | null;

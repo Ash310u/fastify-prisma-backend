@@ -1,12 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
 
-type CreateCampaignJoinBody = {
+export type CreateCampaignJoinBody = {
   campaignId: number;
   userId: number;
 };
 
-type UpdateCampaignJoinBody = {
+export type UpdateCampaignJoinBody = {
   campaignId?: number;
   userId?: number;
 };

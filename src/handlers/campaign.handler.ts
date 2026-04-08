@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
 
-type CreateCampaignBody = {
+export type CreateCampaignBody = {
   createdBy: number;
   title: string;
   description: string;
@@ -10,7 +10,7 @@ type CreateCampaignBody = {
   participantCount?: number;
 };
 
-type UpdateCampaignBody = {
+export type UpdateCampaignBody = {
   createdBy?: number;
   title?: string;
   description?: string;

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { UserRole } from "../generated/prisma/client";
-import { buildTestApp } from "./helpers/app";
+import { buildTestApp, createAuthHeaders } from "./helpers/app";
 
 test("GET /api/users returns all users", async (t) => {
   const { app, prisma } = await buildTestApp();
@@ -23,6 +23,7 @@ test("GET /api/users returns all users", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/users",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -48,6 +49,7 @@ test("GET /api/users/:id returns one user", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/users/7",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -103,6 +105,7 @@ test("PUT /api/users/:id updates a user", async (t) => {
   const response = await app.inject({
     method: "PUT",
     url: "/api/users/4",
+    headers: createAuthHeaders(app),
     payload,
   });
 
@@ -121,6 +124,7 @@ test("DELETE /api/users/:id removes a user", async (t) => {
   const response = await app.inject({
     method: "DELETE",
     url: "/api/users/3",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 204);
@@ -194,6 +198,7 @@ test("GET /api/users/:id/insights returns authority insights", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/users/5/insights",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -256,6 +261,7 @@ test("GET /api/users/:id/insights returns org insights scoped by city", async (t
   const response = await app.inject({
     method: "GET",
     url: "/api/users/8/insights",
+    headers: createAuthHeaders(app),
   });
 
   assert.equal(response.statusCode, 200);
@@ -292,8 +298,69 @@ test("GET /api/users/:id/insights rejects non-privileged roles", async (t) => {
   const response = await app.inject({
     method: "GET",
     url: "/api/users/2/insights",
+    headers: createAuthHeaders(app),
   });
   assert.equal(response.statusCode, 403);
   assert.equal(prisma.assignment.count.calls.length, 0);
   assert.equal(prisma.report.count.calls.length, 0);
+});
+
+test("POST /api/users/session returns JWT and user payload", async (t) => {
+  const { app, prisma } = await buildTestApp();
+  t.after(() => app.close());
+
+  prisma.user.findUnique.mockResolvedValue({
+    id: 21,
+    name: "Admin One",
+    email: "admin@example.com",
+    passwordHash: "pw_hash",
+    role: UserRole.admin,
+    city: "Bhopal",
+    impactScore: 42,
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/users/session",
+    payload: {
+      email: "admin@example.com",
+      passwordHash: "pw_hash",
+    },
+  });
+
+  assert.equal(response.statusCode, 200);
+  const body = response.json();
+  assert.equal(typeof body.token, "string");
+  assert.equal(body.user.id, 21);
+  assert.equal(body.user.role, UserRole.admin);
+});
+
+test("GET /api/users/session returns current user from token", async (t) => {
+  const { app, prisma } = await buildTestApp();
+  t.after(() => app.close());
+
+  prisma.user.findUnique.mockResolvedValue({
+    id: 10,
+    name: "Authority User",
+    email: "authority@example.com",
+    passwordHash: "hash",
+    role: UserRole.authority,
+    city: "Indore",
+    impactScore: 9,
+  });
+
+  const response = await app.inject({
+    method: "GET",
+    url: "/api/users/session",
+    headers: createAuthHeaders(app, {
+      userId: 10,
+      role: UserRole.authority,
+      email: "authority@example.com",
+    }),
+  });
+
+  assert.equal(response.statusCode, 200);
+  const body = response.json();
+  assert.equal(body.user.id, 10);
+  assert.equal(body.user.role, UserRole.authority);
 });
