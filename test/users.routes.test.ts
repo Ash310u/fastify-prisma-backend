@@ -267,7 +267,6 @@ test("GET /api/users/:id/insights returns org insights scoped by city", async (t
   assert.equal(firstCountWhere?.user?.city, "Indore");
 
   const payload = response.json();
-  console.log(payload);
   assert.equal(payload.role, UserRole.org);
   assert.equal(payload.cityScope, "Indore");
   assert.equal(payload.todayTotalReports, 10);
