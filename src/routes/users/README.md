@@ -3,6 +3,7 @@
 ## Route List
 - GET /api/users
 - GET /api/users/:id
+- GET /api/users/:id/insights
 - POST /api/users
 - PUT /api/users/:id
 - DELETE /api/users/:id
@@ -16,6 +17,17 @@ Input
 - Body: none
 
 ### GET /api/users/:id
+Input
+- Params
+```json
+{
+  "id": 1
+}
+```
+- Query: none
+- Body: none
+
+### GET /api/users/:id/insights
 Input
 - Params
 ```json

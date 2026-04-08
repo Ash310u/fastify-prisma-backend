@@ -13,8 +13,9 @@ type AsyncMock<TArgs extends unknown[] = unknown[], TResult = unknown> = ((
 
 type ModelDelegate = {
   create: AsyncMock<[unknown], unknown>;
-  findMany: AsyncMock<[], unknown[]>;
-  findUnique: AsyncMock<[unknown], unknown | null>;
+  findMany: AsyncMock<[unknown?], unknown[]>;
+  findUnique: AsyncMock<[unknown?], unknown | null>;
+  count: AsyncMock<[unknown?], number>;
   update: AsyncMock<[unknown], unknown>;
   delete: AsyncMock<[unknown], unknown>;
 };
@@ -61,6 +62,7 @@ function createModelDelegate(): ModelDelegate {
     create: createAsyncMock({}),
     findMany: createAsyncMock([]),
     findUnique: createAsyncMock(null),
+    count: createAsyncMock(0),
     update: createAsyncMock({}),
     delete: createAsyncMock({}),
   };
