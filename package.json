@@ -26,6 +26,7 @@
   "homepage": "https://github.com/Ash310u/fastify-prisma-backend#readme",
   "dependencies": {
     "@fastify/jwt": "^9.1.0",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.6.0",
     "dotenv": "^17.2.3",

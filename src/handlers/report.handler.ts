@@ -1,19 +1,16 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { ReportStatus } from "../../generated/prisma/client";
+import { Prisma, ReportStatus, UserRole } from "../../generated/prisma/client";
 import { handlePrismaCrudError, parseNumericId, replyInvalidId } from "./crud.utils";
+import { analyzeWasteImage } from "../services/geminiVision";
 
 export type CreateReportBody = {
-  userId: number;
   imageUrl: string;
-  latitude: number;
-  longitude: number;
   addressText: string;
-  description: string;
-  category: string;
-  severity: string;
-  status?: ReportStatus;
-  aiConfidenceScore: number;
-  resolvedAt?: string;
+  lat?: number | string;
+  lng?: number | string;
+  latitude?: number | string;
+  longitude?: number | string;
+  lon?: number | string;
 };
 
 export type UpdateReportBody = {
@@ -34,37 +31,64 @@ export async function createReportHandler(
   request: FastifyRequest<{ Body: CreateReportBody }>,
   reply: FastifyReply,
 ) {
-  const {
-    userId,
-    imageUrl,
-    latitude,
-    longitude,
-    addressText,
-    description,
-    category,
-    severity,
-    status,
-    aiConfidenceScore,
-    resolvedAt,
-  } = request.body;
+  if (!request.authUser || request.authUser.role !== UserRole.citizen) {
+    return reply.code(403).send({
+      message: "Only citizen users can create reports",
+    });
+  }
 
-  const statusValue = status ?? null;
-  const resolvedAtValue = resolvedAt ? new Date(resolvedAt) : null;
+  const { imageUrl, addressText } = request.body;
 
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+  const parseCoordinate = (value: unknown): number | null => {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    return null;
+  };
+
+  const lat = parseCoordinate(request.body.lat) ?? parseCoordinate(request.body.latitude);
+  const lng =
+    parseCoordinate(request.body.lng) ??
+    parseCoordinate(request.body.lon) ??
+    parseCoordinate(request.body.longitude);
+
+  if (typeof imageUrl !== "string" || imageUrl.trim().length === 0) {
     return reply.code(400).send({
-      message: "latitude and longitude are required numeric values",
+      message: "imageUrl is required",
+    });
+  }
+
+  if (typeof addressText !== "string" || addressText.trim().length === 0) {
+    return reply.code(400).send({
+      message: "addressText is required",
+    });
+  }
+
+  if (lat === null || lng === null) {
+    return reply.code(400).send({
+      message: "Provide valid coordinates using lat/latitude and lng/lon/longitude",
     });
   }
 
   try {
+    const analysis = await analyzeWasteImage(imageUrl);
+
+    if (!analysis.isGarbage || !analysis.category || !analysis.severity) {
+      return reply.code(400).send({ message: "No garbage detected in image" });
+    }
     const inserted = await request.server.prisma.$queryRaw<{ id: number }[]>`
       INSERT INTO reports (
         user_id,
         image_url,
         location,
         address_text,
-        description,
+        object,
         category,
         severity,
         status,
@@ -72,16 +96,17 @@ export async function createReportHandler(
         resolved_at
       )
       VALUES (
-        ${userId},
+        ${request.authUser.userId},
         ${imageUrl},
-        ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+        ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
         ${addressText},
-        ${description},
-        ${category},
-        ${severity},
-        COALESCE(${statusValue}::"ReportStatus", 'pending'::"ReportStatus"),
-        ${aiConfidenceScore},
-        ${resolvedAtValue}
+        ${analysis.reason},
+        ${analysis.object},
+        ${analysis.category},
+        ${analysis.severity},
+        ${ReportStatus.pending}::"ReportStatus",
+        ${analysis.confidence},
+        ${null}
       )
       RETURNING id
     `;
@@ -100,7 +125,20 @@ export async function createReportHandler(
 
     return reply.code(201).send(report);
   } catch (error) {
-    return handlePrismaCrudError(error, reply);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return reply.code(400).send({ message: "Invalid report data" });
+      }
+
+      return handlePrismaCrudError(error, reply);
+    }
+
+    if (error instanceof Error && error.message === "GEMINI_API_KEY is not configured") {
+      return reply.code(500).send({ message: "AI service is not configured" });
+    }
+
+    request.log.error({ err: error }, "Failed to create report");
+    return reply.code(502).send({ message: "Failed to analyze image" });
   }
 }
 
