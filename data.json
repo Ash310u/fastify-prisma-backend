@@ -1,0 +1,54 @@
+/* /home/ass/src/fastify-prisma-backend/scripts/upload-reports.js */
+const fs = require("node:fs");
+const path = require("node:path");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
+
+async function main() {
+    const filePath = path.join(__dirname, "..", "data.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(raw);
+
+    const reports = parsed.heatmap ?? [];
+    if (!reports.length) {
+        throw new Error("No heatmap data found in data.json");
+    }
+
+    // Upsert so existing rows are updated and new rows are inserted.
+    for (const r of reports) {
+        await prisma.report.upsert({
+            where: { id: r.id }, // requires id to be unique in Report model
+            update: {
+                lat: r.lat,
+                lng: r.lng,
+                intensity: r.intensity,
+                label: r.label,
+                city: r.city,
+                state: r.state,
+                category: r.category,
+            },
+            create: {
+                id: r.id,
+                lat: r.lat,
+                lng: r.lng,
+                intensity: r.intensity,
+                label: r.label,
+                city: r.city,
+                state: r.state,
+                category: r.category,
+            },
+        });
+    }
+
+    console.log(`Uploaded ${reports.length} reports successfully.`);
+}
+
+main()
+    .catch((e) => {
+        console.error("Upload failed:", e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

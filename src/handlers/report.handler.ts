@@ -88,7 +88,7 @@ export async function createReportHandler(
         image_url,
         location,
         address_text,
-        object,
+        description,
         category,
         severity,
         status,
@@ -101,7 +101,6 @@ export async function createReportHandler(
         ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
         ${addressText},
         ${analysis.reason},
-        ${analysis.object},
         ${analysis.category},
         ${analysis.severity},
         ${ReportStatus.pending}::"ReportStatus",
@@ -122,7 +121,6 @@ export async function createReportHandler(
     if (!report) {
       return reply.code(500).send({ message: "Failed to load created report" });
     }
-
     return reply.code(201).send(report);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -126,8 +126,11 @@ test("POST /api/reports creates a report", async (t) => {
   assert.equal(queryArgs[2], payload.imageUrl);
   assert.equal(queryArgs[3], payload.lng);
   assert.equal(queryArgs[4], payload.lat);
+  assert.equal(queryArgs[5], payload.addressText);
+  assert.equal(queryArgs[6], "Large mixed garbage pile on footpath");
   assert.equal(queryArgs[7], "plastic");
   assert.equal(queryArgs[8], "HIGH");
+  assert.equal(queryArgs[9], "pending");
   assert.equal(queryArgs[10], 0.91);
   assert.equal(queryArgs[11], null);
 });
