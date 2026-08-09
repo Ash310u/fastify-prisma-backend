@@ -1,4 +1,4 @@
-# fastify-prisma-backend
+# BinSight
 
 > Fastify and Prisma REST API on PostgreSQL/PostGIS for AI-validated, geospatial waste reporting and municipal assignment workflows.
 
