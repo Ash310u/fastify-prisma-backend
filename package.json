@@ -1,7 +1,7 @@
 {
   "name": "fastify-prisma-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Fastify and Prisma REST API on PostgreSQL/PostGIS for AI-validated, geospatial waste reporting and municipal assignment workflows.",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
